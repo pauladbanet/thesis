@@ -15,22 +15,32 @@ def get_dataset(file_paths):
   dataset = load_dataset(file_paths)
   dataset = dataset.prefetch(buffer_size=AUTOTUNE)
   # dataset = dataset.shuffle(buffer_size=10 * BATCH_SIZE)  
-  dataset = dataset.batch(8, drop_remainder=True)
+  dataset = dataset.batch(4, drop_remainder=True)
   return dataset
 
+num_neurons = 30
 def cnn():
   model = Sequential()
   model.add(Conv1D(32, 2, activation='relu', input_shape=[13,323]))
   model.add(MaxPooling1D(2))
+  # model.add(Dense(num_neurons, activation = 'relu', input_dim = 4199))
   model.add(Flatten())
-  model.add(Dense(32, activation='relu'))
-  model.add(Dense(32, activation='relu'))
-  model.add(Dense(3, activation='relu'))
-
-  model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),)
+  model.add(Dense(1 , activation = 'linear'))
+  model.compile(loss='mean_squared_error', optimizer='rmsprop')
   print(model.summary())
   return model
 
+  # model = Sequential()
+  # model.add(Conv1D(32, 2, activation='relu', input_shape=[13,323]))
+  # model.add(MaxPooling1D(2))
+  # model.add(Flatten())
+  # model.add(Dense(32, activation='relu'))
+  # model.add(Dense(32, activation='relu'))
+  # model.add(Dense(3, activation='relu'))
+
+  # model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),)
+  # print(model.summary())
+  # return model
 
 train_dataset = get_dataset([file_path0, file_path1])
 val_dataset = get_dataset([file_path3])
@@ -40,5 +50,5 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_ra
                                                             decay_steps=20, decay_rate=0.96, staircase=True)
 model = cnn()
 hist = model.fit(train_dataset, 
-                batch_size=BATCH_SIZE, 
-                epochs=100)
+                  validation_data=val_dataset,
+                  epochs=50)
