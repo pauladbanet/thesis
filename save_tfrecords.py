@@ -2,7 +2,6 @@ from __init__ import *
 import librosa
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
-from google.cloud import storage
 
 import warnings
 warnings.filterwarnings("ignore")

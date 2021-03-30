@@ -18,7 +18,6 @@ def read_tfrecord(serialized_example):
     mfcc = tf.io.parse_tensor(example['mfcc'], out_type=tf.float32)
     
     new_mfcc = tf.reshape(mfcc, [13, int(len(mfcc)/13)]) 
-    print(new_mfcc)
 
     # Takes a random slice of mfcc 
     max_offset = int(len(mfcc)/13) - SLICE_LENGTH
@@ -28,10 +27,8 @@ def read_tfrecord(serialized_example):
         piece = tf.slice(new_mfcc, [1, random_offset], [-1, SLICE_LENGTH])
     else:
         piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
-    print(piece)
 
-    return piece, [val, aro, dom]
-
+    return piece, [val , aro, dom]
 
 def load_dataset(file_paths):
     ignore_order = tf.data.Options()
@@ -40,7 +37,6 @@ def load_dataset(file_paths):
 
     dataset = dataset.with_options(ignore_order)
     dataset = dataset.map(read_tfrecord)
-
 
     return dataset
 
