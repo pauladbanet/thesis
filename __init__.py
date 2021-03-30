@@ -10,3 +10,9 @@ import csv
 import numpy as np
 import tensorflow as tf
 from mutagen.mp3 import MP3
+
+BATCH_SIZE = 32
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+SLICE_LENGTH = 323
+
+REMOVE_OFFSET_MFCC = True

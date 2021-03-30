@@ -7,8 +7,6 @@ from google.cloud import storage
 import warnings
 warnings.filterwarnings("ignore")
 
-client = storage.Client.from_service_account_json('paula-sandbox-credential.json')
-
 REMOVE_FIRST_COEF = False  
 
 sountracks1000 = pickle.load(open('/dataset/sountracks1000.pkl', 'rb'))
@@ -66,16 +64,14 @@ def save_songs(sountracks1000):
     batch_size = 200
     start_index = 2
     dataframes = [sountracks1000[i:i+batch_size] for i in range(0,sountracks1000.shape[0],batch_size)]
-    bucket = client.get_bucket('sountracks9000')
 
     for index in range(len(dataframes)):
         
-        filename = 'mfccs200_'+ str(index) +'.tfrecords'
-        if index >= start_index:
+        filename = '/dataset/mfccs200_'+ str(index) +'.tfrecords'
+        if index == start_index:
             write_tfrecords(dataframes[index], filename)
             print('Batch index', str(index))
-            blob = bucket.blob(filename)
-            blob.upload_from_filename(filename)
+
 
 # save_songs(sountracks1000)
 

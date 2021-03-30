@@ -16,11 +16,21 @@ def read_tfrecord(serialized_example):
     aro = example['aro']
     dom = example['dom']
     mfcc = tf.io.parse_tensor(example['mfcc'], out_type=tf.float32)
+    
+    new_mfcc = tf.reshape(mfcc, [13, int(len(mfcc)/13)]) 
+    print(new_mfcc)
 
-    return mfcc, [val, aro, dom]
+    # Takes a random slice of mfcc 
+    max_offset = int(len(mfcc)/13) - SLICE_LENGTH
+    random_offset = tf.random.uniform((), minval=0, maxval=max_offset, dtype=tf.dtypes.int32)
 
-file_path = '/dataset/mfccs200_0.tfrecords'
-file_paths = [file_path] 
+    if REMOVE_OFFSET_MFCC:
+        piece = tf.slice(new_mfcc, [1, random_offset], [-1, SLICE_LENGTH])
+    else:
+        piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
+    print(piece)
+
+    return piece, [val, aro, dom]
 
 
 def load_dataset(file_paths):
@@ -30,6 +40,7 @@ def load_dataset(file_paths):
 
     dataset = dataset.with_options(ignore_order)
     dataset = dataset.map(read_tfrecord)
+
 
     return dataset
 
