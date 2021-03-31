@@ -60,8 +60,10 @@ def write_tfrecords(dataframe, filename):
 
 
 def save_songs(sountracks1000):    
+# Creates tfrecords files with 200 songs in each one
+
     batch_size = 200
-    start_index = 2
+    start_index = 4
     dataframes = [sountracks1000[i:i+batch_size] for i in range(0,sountracks1000.shape[0],batch_size)]
 
     for index in range(len(dataframes)):
@@ -72,7 +74,7 @@ def save_songs(sountracks1000):
             print('Batch index', str(index))
 
 
-# save_songs(sountracks1000)
+# save_songs(sountracks1000)        
 
 
 # sountracks1000.to_pickle(os.path.join(dir, 'mfccs/sountracks1000.pkl'))

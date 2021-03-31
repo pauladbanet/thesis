@@ -5,12 +5,6 @@ from keras.layers import Dense, Conv2D,Conv1D, MaxPooling1D, Activation, Dropout
 from keras.optimizers import Adam
 from keras.utils import to_categorical
 
-file_path0 = '/dataset/mfccs200_0.tfrecords'
-file_path1 = '/dataset/mfccs200_1.tfrecords'
-# file_path2 = '/dataset/mfccs200_2.tfrecords'
-file_path3 = '/dataset/mfccs200_3.tfrecords'
-
-
 def get_dataset(file_paths):
   dataset = load_dataset(file_paths)
   dataset = dataset.prefetch(buffer_size=AUTOTUNE)
@@ -18,37 +12,34 @@ def get_dataset(file_paths):
   dataset = dataset.batch(4, drop_remainder=True)
   return dataset
 
-num_neurons = 30
+num_neurons = 100
 def cnn():
   model = Sequential()
   model.add(Conv1D(32, 2, activation='relu', input_shape=[13,323]))
   model.add(MaxPooling1D(2))
-  # model.add(Dense(num_neurons, activation = 'relu', input_dim = 4199))
   model.add(Flatten())
-  model.add(Dense(1 , activation = 'linear'))
-  model.compile(loss='mean_squared_error', optimizer='rmsprop')
+  model.add(Dense(num_neurons, activation = 'relu'))
+  model.add(Dense(3 , activation = 'linear'))
+
+  model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule), metrics=['mae'])
+  
   print(model.summary())
   return model
+# optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+# optimizer='rmsprop'
+  
 
-  # model = Sequential()
-  # model.add(Conv1D(32, 2, activation='relu', input_shape=[13,323]))
-  # model.add(MaxPooling1D(2))
-  # model.add(Flatten())
-  # model.add(Dense(32, activation='relu'))
-  # model.add(Dense(32, activation='relu'))
-  # model.add(Dense(3, activation='relu'))
+train_dataset = get_dataset([file_path0, file_path1, file_path2, file_path3])
+val_dataset = get_dataset([file_path4])
 
-  # model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),)
-  # print(model.summary())
-  # return model
-
-train_dataset = get_dataset([file_path0, file_path1])
-val_dataset = get_dataset([file_path3])
-
+# Works better rmsprop optimizer
 initial_learning_rate = 0.01
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate, 
                                                             decay_steps=20, decay_rate=0.96, staircase=True)
 model = cnn()
+log_dir = "logs/fit/" + str(num_neurons) + 'neuron_Adam'
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 hist = model.fit(train_dataset, 
                   validation_data=val_dataset,
-                  epochs=50)
+                  epochs=100, 
+                  callbacks=[tensorboard_callback])

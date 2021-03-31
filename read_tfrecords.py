@@ -29,8 +29,8 @@ def read_tfrecord(serialized_example):
         piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
     # piece = tf.reshape(piece,[-1])
 
+    return piece, [val, aro, dom]
 
-    return piece, val
 
 def load_dataset(file_paths):
     ignore_order = tf.data.Options()
