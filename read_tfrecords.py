@@ -27,9 +27,11 @@ def read_tfrecord(serialized_example):
         piece = tf.slice(new_mfcc, [1, random_offset], [-1, SLICE_LENGTH])
     else:
         piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
-    # piece = tf.reshape(piece,[-1])
 
-    return piece, [val, aro, dom]
+    piece = tf.transpose(piece)
+    piece = tf.expand_dims(piece, axis=2)
+
+    return piece, val
 
 
 def load_dataset(file_paths):
@@ -39,7 +41,6 @@ def load_dataset(file_paths):
 
     dataset = dataset.with_options(ignore_order)
     dataset = dataset.map(read_tfrecord)
-
     return dataset
 
 # dataset = load_dataset(file_paths)

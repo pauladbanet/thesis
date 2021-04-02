@@ -1,6 +1,4 @@
 from __init__ import *
-import librosa
-import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 
 import warnings
@@ -8,11 +6,14 @@ warnings.filterwarnings("ignore")
 
 REMOVE_FIRST_COEF = False  
 
-sountracks1000 = pickle.load(open('/dataset/sountracks1000.pkl', 'rb'))
-sountracks10 = sountracks1000.head(10)
+# sountracks1000 = pickle.load(open('/dataset/sountracks1000.pkl', 'rb'))
+# sountracks10 = sountracks1000.head(10)
+# sountracks10['mfcc'] = 0
+# sountracks1000['mfcc'] = 0
 
-sountracks10['mfcc'] = 0
-sountracks1000['mfcc'] = 0
+sountracks9000 = pickle.load(open('/dataset/sountracks9000.pkl', 'rb'))
+sountracks9000 = sountracks9000.dropna()
+sountracks9000['mfcc'] = 0
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -36,17 +37,17 @@ def create_example(item, mfcc):
     return example_proto.SerializeToString()
 
 def write_tfrecords(dataframe, filename):
+    dataframe['mfcc'] = dataframe['mfcc'].astype('object')
 
     with tf.io.TFRecordWriter(filename) as writer:
 
         for item in dataframe.iterrows():
             print('song ID ' + str(item[1].name))
 
-            audio_path = '/dataset/soundtracks1000/' + str(item[1].id) + '.mp3'
+            audio_path = '/dataset/soundtracks9000/' + str(item[1].id) + '.mp3'
             x , sr = librosa.load(audio_path)
             mfcc = librosa.feature.mfcc(x, sr=sr, n_mfcc=13, hop_length=1024)
-
-            dataframe['mfcc'] = dataframe['mfcc'].astype('object')
+            #[13, 323]
             dataframe.at[item[1].name, 'mfcc'] = mfcc
 
             # Remove first coefficient MFCC
@@ -59,22 +60,21 @@ def write_tfrecords(dataframe, filename):
             writer.write(example)
 
 
-def save_songs(sountracks1000):    
+def save_songs(sountracks):    
 # Creates tfrecords files with 200 songs in each one
 
     batch_size = 200
-    start_index = 4
-    dataframes = [sountracks1000[i:i+batch_size] for i in range(0,sountracks1000.shape[0],batch_size)]
+    start_index = 6
+    dataframes = [sountracks[i:i+batch_size] for i in range(0,sountracks.shape[0],batch_size)]
 
     for index in range(len(dataframes)):
         
         filename = '/dataset/mfccs200_'+ str(index) +'.tfrecords'
-        if index == start_index:
+        if index >= start_index:
             write_tfrecords(dataframes[index], filename)
             print('Batch index', str(index))
 
-
-# save_songs(sountracks1000)        
+# save_songs(sountracks9000)        
 
 
 # sountracks1000.to_pickle(os.path.join(dir, 'mfccs/sountracks1000.pkl'))
