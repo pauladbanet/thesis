@@ -75,3 +75,6 @@ for opt in opts:
                     validation_data=val_dataset,
                     epochs=2000, 
                     callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
+
+
+# Adam, 0.0001, 
