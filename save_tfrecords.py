@@ -4,7 +4,6 @@ from timeit import default_timer as timer
 import warnings
 warnings.filterwarnings("ignore")
 
-REMOVE_FIRST_COEF = False  
 
 # sountracks1000 = pickle.load(open('/dataset/sountracks1000.pkl', 'rb'))
 # sountracks10 = sountracks1000.head(10)
@@ -50,10 +49,10 @@ def write_tfrecords(dataframe, filename):
             #[13, 323]
             dataframe.at[item[1].name, 'mfcc'] = mfcc
 
-            # Remove first coefficient MFCC
-            if REMOVE_FIRST_COEF:
-                index = np.where(mfcc[0])
-                mfcc = np.delete(mfcc, index)
+            # # Remove first coefficient MFCC
+            # if REMOVE_OFFSET_MFCC:
+            #     index = np.where(mfcc[0])
+            #     mfcc = np.delete(mfcc, index)
 
             example = create_example(item, mfcc)
 

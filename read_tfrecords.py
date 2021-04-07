@@ -43,8 +43,3 @@ def load_dataset(file_paths):
     dataset = dataset.map(read_tfrecord)
     return dataset
 
-# dataset = load_dataset(file_paths)
-# for data in dataset.take(2):
-#     mfcc = data[0].numpy().reshape(13, int(len(data[0])/13))
-#     vad = data[1].numpy()
-#     print(data)

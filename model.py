@@ -2,7 +2,8 @@ from save_tfrecords import *
 from read_tfrecords import *
 from alden import *
 from __init__ import *
-from keras.models import Sequential
+from keras import Input
+from keras.models import Sequential, Model
 from keras.layers import Dense, Conv2D,Conv1D,MaxPooling2D, MaxPooling1D, Activation, Dropout, Flatten, BatchNormalization
 from keras.optimizers import Adam
 from keras.utils import to_categorical
@@ -11,46 +12,66 @@ def get_dataset(file_paths):
   dataset = load_dataset(file_paths)
   dataset = dataset.prefetch(buffer_size=AUTOTUNE)
   dataset = dataset.shuffle(buffer_size=500)  
-  dataset = dataset.batch(24, drop_remainder=True)
+  dataset = dataset.batch(32, drop_remainder=True)
   return dataset
 
-num_neurons = 30
-def cnn(opt):
-  model = Sequential()
-  model.add(BatchNormalization(renorm=True, input_shape=[323, 13, 1]))
-  model.add(Conv2D(32, (2, 13), activation='relu', kernel_initializer='glorot_normal'))
-  model.add(MaxPooling2D(pool_size=(2, 1)))
 
-  model.add(Flatten())
-  model.add(Dense(num_neurons, activation = 'relu', kernel_initializer='glorot_normal'))
-  model.add(Dense(1 , activation = 'linear'))
-
-  model.compile(loss='mean_squared_error', optimizer=opt, metrics=['mae'])
+def cnn(opt, input_shape):
+  input = Input(shape=input_shape)
+  # x = BatchNormalization(renorm=True)(input)
   
-  print(model.summary())
-  return model
+  x = Conv2D(16, (2, 1), activation='relu', kernel_initializer='glorot_normal')(input)
+  x = MaxPooling2D(pool_size=(1, 2))(x)
+  x = BatchNormalization(renorm=True)(x)
+
+  x = Conv2D(32, (2, 1), activation='relu', kernel_initializer='glorot_normal')(x)
+  x = MaxPooling2D(pool_size=(2, 1))(x)
+  x = BatchNormalization(renorm=True)(x)
+
+  x = Conv2D(64, (2, 1), activation='relu', kernel_initializer='glorot_normal')(x)
+  x = MaxPooling2D(pool_size=(2, 1))(x)
+  x = BatchNormalization(renorm=True)(x)
+
+  x = Flatten()(x)
+  x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  x = Dense(256, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  x = Dense(128, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  x = Dense(64, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  x = Dense(1, activation = 'linear')(x)
+
+  x = Model(inputs=input, outputs=x)
+  x.compile(loss='mean_squared_error', optimizer=opt, metrics=['mae'])
+  
+  print(x.summary())
+  return x
 
 train_dataset = get_dataset([file_path0, file_path1, file_path2, file_path3])  # 800 songs
-val_dataset = get_dataset([file_path4])   # 200 songs
+val_dataset = get_dataset([file_path4])             # 200 songs
 
+for song in train_dataset.take(1):
+    input_shape = song[0].shape[1:]
 
 lr = 0.0001
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(lr, decay_steps=20, decay_rate=0.96, staircase=True)
-opt = tf.keras.optimizers.RMSprop(learning_rate=lr)
+opt_rms = tf.keras.optimizers.RMSprop(learning_rate=lr)
+opt_adam = tf.keras.optimizers.Adam(learning_rate=lr)
 
-model = cnn(opt)
+opts = [opt_rms, opt_adam]
 
-log_dir = "logs/fit/" + str(num_neurons) + 'neuron_' + opt._name + '_batchwithloadweights'
+for opt in opts:
+  model = cnn(opt, input_shape)
 
-callback_train = PredictionPlot(log_dir, 'train', train_dataset)
-callback_val = PredictionPlot(log_dir, 'val', val_dataset)
+  log_dir = 'logs/batchnorm_13coeff/3Conv5Dense1024_0.0001x2000' + opt._name
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+  callback_train = PredictionPlot(log_dir, 'train', train_dataset)
+  callback_val = PredictionPlot(log_dir, 'val', val_dataset)
+  tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-checkpoint = tf.keras.callbacks.ModelCheckpoint('best_weights.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
+  checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense1024_0.0001x2000' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
+  # model.load_weights('weights/3conv_5Dense_0.001_adamx2.hdf5')
 
-model.load_weights('logs/fit/30neuron_Adam_batch.hdf5')
-hist = model.fit(train_dataset, 
-                  validation_data=val_dataset,
-                  epochs=1000, 
-                  callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
+  hist = model.fit(train_dataset, 
+                    validation_data=val_dataset,
+                    epochs=2000, 
+                    callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
