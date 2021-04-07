@@ -62,7 +62,7 @@ opts = [opt_rms, opt_adam]
 for opt in opts:
   model = cnn(opt, input_shape)
 
-  log_dir = 'logs/batchnorm_13coeff/3Conv5Dense1024_0.0001x2000' + opt._name
+  log_dir = 'logs/3Conv5Dense1024_0.0001x2000' + opt._name
 
   callback_train = PredictionPlot(log_dir, 'train', train_dataset)
   callback_val = PredictionPlot(log_dir, 'val', val_dataset)
@@ -77,4 +77,4 @@ for opt in opts:
                     callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
 
 
-# Adam, 0.0001, 
+# Adam, 0.0001
