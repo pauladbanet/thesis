@@ -49,11 +49,6 @@ def write_tfrecords(dataframe, filename):
             #[13, 323]
             dataframe.at[item[1].name, 'mfcc'] = mfcc
 
-            # # Remove first coefficient MFCC
-            # if REMOVE_OFFSET_MFCC:
-            #     index = np.where(mfcc[0])
-            #     mfcc = np.delete(mfcc, index)
-
             example = create_example(item, mfcc)
 
             writer.write(example)
@@ -63,13 +58,13 @@ def save_songs(sountracks):
 # Creates tfrecords files with 200 songs in each one
 
     batch_size = 200
-    start_index = 6
+    start_index = 15
     dataframes = [sountracks[i:i+batch_size] for i in range(0,sountracks.shape[0],batch_size)]
 
     for index in range(len(dataframes)):
         
         filename = '/dataset/mfccs200_'+ str(index) +'.tfrecords'
-        if index >= start_index:
+        if index == start_index:
             write_tfrecords(dataframes[index], filename)
             print('Batch index', str(index))
 

@@ -26,4 +26,14 @@ file_path1 = '/dataset/mfccs200_1.tfrecords'
 file_path2 = '/dataset/mfccs200_2.tfrecords'
 file_path3 = '/dataset/mfccs200_3.tfrecords'
 file_path4 = '/dataset/mfccs200_4.tfrecords'
-file_path5 = '/dataset/mfccs200_4.tfrecords'
+file_path5 = '/dataset/mfccs200_5.tfrecords'
+file_path6 = '/dataset/mfccs200_6.tfrecords'
+file_path7 = '/dataset/mfccs200_7.tfrecords'
+
+num_files = range(0,15)
+gc_paths = []
+
+for num_file in num_files:
+    file_path = 'gs://mfccs/mfccs200_' + str(num_file) + '.tfrecords'
+    gc_paths.append(file_path)
+
