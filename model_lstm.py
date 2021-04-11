@@ -18,8 +18,7 @@ def get_dataset(file_paths):
 
 def lstm(opt, input_shape):
   input = Input(shape=input_shape)
-  x = LSTM(400, return_sequences=True)(input)
-  x = TimeDistributed(Dense(32, activation = 'relu'))(x)
+  x = LSTM(10, return_sequences=False)(input)
   x = Dense(16, activation = 'relu')(x)
   x = Dense(1, activation = 'linear')(x)
 
@@ -43,9 +42,9 @@ model = lstm(opt, input_shape)
 
 log_dir = 'logs/lstm/400lstmx1000' + opt._name + str(lr)
 
-# callback_train = PredictionPlot(log_dir, 'train', train_dataset)
-# callback_val = PredictionPlot(log_dir, 'val', val_dataset)
-# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+callback_train = PredictionPlot(log_dir, 'train', train_dataset)
+callback_val = PredictionPlot(log_dir, 'val', val_dataset)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/400lstmx1000' + opt._name + str(lr) +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
 # model.load_weights('weights/x500Adam0.001.hdf5')
@@ -53,4 +52,4 @@ checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/400lstmx1000' + opt._na
 hist = model.fit(train_dataset, 
                   validation_data=val_dataset,
                   epochs=1000, 
-                  callbacks=[checkpoint]) # tensorboard_callback, callback_train, callback_val, 
+                  callbacks=[checkpoint, tensorboard_callback, callback_train, callback_val]) # 

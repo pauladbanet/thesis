@@ -36,7 +36,7 @@ def cnn(opt, input_shape):
   x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(256, activation = 'relu', kernel_initializer='glorot_normal')(x)
-  x = Dense(128, activation = 'relu', kernel_initializer='glorot_normal')(x)
+  # x = Dense(128, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(64, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(1, activation = 'linear')(x)
 
@@ -46,31 +46,31 @@ def cnn(opt, input_shape):
   print(x.summary())
   return x
 
-train_dataset = get_dataset([file_path0, file_path1, file_path2, file_path3]) 
-val_dataset = get_dataset([file_path4])            
 
-for song in train_dataset.take(1):
-    input_shape = song[0].shape[1:]
+def start_training(path_train, path_val, lr=0.001):
 
-lr = 0.001
-lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(lr, decay_steps=20, decay_rate=0.96, staircase=True)
-opt = tf.keras.optimizers.Adam(learning_rate=lr)
+  train_dataset = get_dataset(path_train) 
+  val_dataset = get_dataset(path_val)            
 
-model = cnn(opt, input_shape)
+  for song in train_dataset.take(1):
+      input_shape = song[0].shape[1:]
 
-log_dir = 'logs/3Conv5Dense1024_0.001x2000val' + opt._name
+  opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
-callback_train = PredictionPlot(log_dir, 'train', train_dataset)
-callback_val = PredictionPlot(log_dir, 'val', val_dataset)
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+  model = cnn(opt, input_shape)
 
-checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense1024_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
-# model.load_weights('weights/3conv_5Dense_0.001_adamx2.hdf5')
+  log_dir = 'logs/3Conv5Dense_0.001x2000val' + opt._name
 
-hist = model.fit(train_dataset, 
-                  validation_data=val_dataset,
-                  epochs=2000, 
-                  callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
+  callback_train = PredictionPlot(log_dir, 'train', train_dataset)
+  callback_val = PredictionPlot(log_dir, 'val', val_dataset)
+  tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
+  checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
+  # model.load_weights('weights/3conv_5Dense_0.001_adamx2.hdf5')
+
+  hist = model.fit(train_dataset, 
+                    validation_data=val_dataset,
+                    epochs=2000, 
+                    callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
 
 # Adam, 0.0001

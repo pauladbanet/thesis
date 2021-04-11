@@ -29,7 +29,7 @@ def read_tfrecord(serialized_example):
         piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
 
     piece = tf.transpose(piece)
-    # piece = tf.expand_dims(piece, axis=2)
+    piece = tf.expand_dims(piece, axis=2)  # Remove it for LSTM
 
     return piece, val
 

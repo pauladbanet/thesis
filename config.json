@@ -1,0 +1,14 @@
+{
+    "jobId": "test3",
+    "labels": {
+      "type": "test",
+      "owner": "paula"
+    },
+    "trainingInput": {
+      "scaleTier": "BASIC",
+      "packageUris": [
+        "gs://mfccs"
+      ],
+      "region": "us-central1"
+    }
+  }

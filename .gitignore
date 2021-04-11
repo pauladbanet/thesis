@@ -1,4 +1,4 @@
-lastfm_id_spotify.py
-lastfm_vad.py
+/data_analysis/lastfm_id_spotify.py
+/data_analysis/lastfm_vad.py
 /logs
 /weights
