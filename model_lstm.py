@@ -1,7 +1,7 @@
 from save_tfrecords import *
 from read_tfrecords import *
 from alden import *
-from __init__ import *
+from imports import *
 from keras import Input
 from keras.models import Sequential, Model
 from keras.layers import Dense, TimeDistributed, Conv2D,Conv1D,MaxPooling2D, MaxPooling1D, Activation, Dropout, Flatten, BatchNormalization, LSTM

@@ -1,4 +1,4 @@
-from __init__ import *
+from imports import *
 from timeit import default_timer as timer
 
 import warnings

@@ -9,3 +9,4 @@ RUN pip3 install pickle5
 
 RUN pip3 install -r requirements.txt
 
+CMD [ "python", "trainer/json_main.py" ]

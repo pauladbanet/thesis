@@ -1,5 +1,3 @@
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
 import pickle5 as pickle
 import pandas as pd
 import re

@@ -1,5 +1,4 @@
-from google.cloud import storage
-from __init__ import *
+from imports import *
 from save_tfrecords import *
 
 def read_tfrecord(serialized_example):
