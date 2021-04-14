@@ -1,12 +1,13 @@
+# from read_tfrecords import *
+# from alden  import *
 from trainer import read_tfrecords
 from trainer  import alden
-
-from keras import Input
+from tensorflow.keras import Input
 import tensorflow as tf
-from keras.models import Sequential, Model
-from keras.layers import Dense, Conv2D,Conv1D,MaxPooling2D, MaxPooling1D, Activation, Dropout, Flatten, BatchNormalization
-from keras.optimizers import Adam
-from keras.utils import to_categorical
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Dense, Conv2D,Conv1D,MaxPooling2D, MaxPooling1D, Activation, Dropout, Flatten, BatchNormalization
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import to_categorical
 
 BATCH_SIZE = 32
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -23,8 +24,7 @@ def get_dataset(file_paths):
 
 def cnn(opt, input_shape):
   input = Input(shape=input_shape)
-  # x = BatchNormalization(renorm=True)(input)
-  
+ 
   x = Conv2D(16, (2, 1), activation='relu', kernel_initializer='glorot_normal')(input)
   x = MaxPooling2D(pool_size=(1, 2))(x)
   x = BatchNormalization(renorm=True)(x)
@@ -41,7 +41,6 @@ def cnn(opt, input_shape):
   x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(512, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(256, activation = 'relu', kernel_initializer='glorot_normal')(x)
-  # x = Dense(128, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(64, activation = 'relu', kernel_initializer='glorot_normal')(x)
   x = Dense(1, activation = 'linear')(x)
 
@@ -64,20 +63,19 @@ def start_training(path_train, path_val, lr=0.001, epochs=10):
 
   model = cnn(opt, input_shape)
 
-  # log_dir = 'logs/3Conv5Dense_0.001x2000val' + opt._name
+  log_dir = 'logs/3Conv5Dense_0.001x2000val' + opt._name
 
-  # callback_train = alden.PredictionPlot(log_dir, 'train', train_dataset)
-  # callback_val = alden.PredictionPlot(log_dir, 'val', val_dataset)
-  # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+  callback_train = alden.PredictionPlot(log_dir, 'train', train_dataset)
+  callback_val = alden.PredictionPlot(log_dir, 'val', val_dataset)
+  tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-  # checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
+  checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
   # model.load_weights('weights/3conv_5Dense_0.001_adamx2.hdf5')
-  # callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint]
+  callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint]
 
-  hist = model.fit(train_dataset, 
-                    validation_data=val_dataset,
+  hist = model.fit(train_dataset,
                     epochs=epochs)
 
-  return hist.history['loss']
+  return model
 
 # Adam, 0.0001
