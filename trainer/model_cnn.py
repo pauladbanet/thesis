@@ -1,9 +1,8 @@
-from trainer import save_tfrecords
 from trainer import read_tfrecords
 from trainer  import alden
+
 from keras import Input
 import tensorflow as tf
-
 from keras.models import Sequential, Model
 from keras.layers import Dense, Conv2D,Conv1D,MaxPooling2D, MaxPooling1D, Activation, Dropout, Flatten, BatchNormalization
 from keras.optimizers import Adam
@@ -11,6 +10,8 @@ from keras.utils import to_categorical
 
 BATCH_SIZE = 32
 AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+# export PYTHONPATH=$(pwd)
 
 def get_dataset(file_paths):
   dataset = read_tfrecords.load_dataset(file_paths)
@@ -51,7 +52,7 @@ def cnn(opt, input_shape):
   return x
 
 
-def start_training(path_train, path_val, lr=0.001):
+def start_training(path_train, path_val, lr=0.001, epochs=10):
 
   train_dataset = get_dataset(path_train) 
   val_dataset = get_dataset(path_val)            
@@ -63,18 +64,20 @@ def start_training(path_train, path_val, lr=0.001):
 
   model = cnn(opt, input_shape)
 
-  log_dir = 'logs/3Conv5Dense_0.001x2000val' + opt._name
+  # log_dir = 'logs/3Conv5Dense_0.001x2000val' + opt._name
 
-  callback_train = alden.PredictionPlot(log_dir, 'train', train_dataset)
-  callback_val = alden.PredictionPlot(log_dir, 'val', val_dataset)
-  tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+  # callback_train = alden.PredictionPlot(log_dir, 'train', train_dataset)
+  # callback_val = alden.PredictionPlot(log_dir, 'val', val_dataset)
+  # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-  checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
+  # checkpoint = tf.keras.callbacks.ModelCheckpoint('weights/3Conv5Dense_0.001x2000val' + opt._name +'.hdf5', monitor='loss', save_best_only=True, mode='auto', period=1)
   # model.load_weights('weights/3conv_5Dense_0.001_adamx2.hdf5')
+  # callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint]
 
   hist = model.fit(train_dataset, 
                     validation_data=val_dataset,
-                    epochs=2000, 
-                    callbacks=[tensorboard_callback, callback_train, callback_val, checkpoint])
+                    epochs=epochs)
+
+  return hist.history['loss']
 
 # Adam, 0.0001

@@ -1,43 +1,49 @@
 '''Creates the json with the parameters to pass to the job.'''
 
-import json
 import sys 
 from trainer import model_cnn
 import argparse
-from trainer import imports
+import hypertune
+
+
+num_files = range(0,15)
+GC_PATHS = []
+
+for num_file in num_files:
+    file_path = 'gs://mfccs/mfccs200_' + str(num_file) + '.tfrecords'
+    GC_PATHS.append(file_path)
+
 
 def get_args():
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-      '--learning',
-      default=0.001)
-  args = parser.parse_args()
-  return args
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--alpha',
+        default=0.001)
+    parser.add_argument(
+        '--job-dir',
+        required=False)
+    args = parser.parse_args()
+
+    return args
 
 
 args = get_args()
-print(args.learning)
+# arguments = args.__dict__
+# job_dir = arguments.pop('job_dir')
 
-# params = {'batch_size': 64,
-#           'n_epochs': 1000,
-#           'dense_units': 128,
-#           'learning_rate': 0.001,
-#           'optimizer': 'Adam',
-#           'n_dense': 4,
-#           }
+print(args.alpha)
+epochs = 3
 
 # for n_dense in [4, 5]:
 
-model_cnn.start_training(imports.GC_PATHS[0:4], imports.GC_PATHS[5], args.learning)
+loss = model_cnn.start_training(GC_PATHS[0:4], GC_PATHS[5], args.alpha, epochs)
 
-# with open('params.txt', 'w') as outfile:
-#     json.dump(params, outfile)
-
-# gcloud ai-platform jobs submit training test3 --config=config.json --master-image-uri=gcr.io/paula-309109/vscode --module-name=json_main.py --region=us-central1
-
-
-
-
+# # Calling the hypertune library and setting our metric
+# hpt = hypertune.HyperTune()
+# hpt.report_hyperparameter_tuning_metric(
+#     hyperparameter_metric_tag='loss',
+#     metric_value=loss,
+#     global_step=epochs)
 
 
 

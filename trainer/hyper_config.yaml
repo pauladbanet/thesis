@@ -1,0 +1,13 @@
+trainingInput:
+  hyperparameters:
+    goal: MINIMIZE
+    hyperparameterMetricTag: "loss"
+    maxTrials: 10
+    maxParallelTrials: 0
+    enableTrialEarlyStopping: TRUE 
+    params:
+    - parameterName: alpha
+      type: DOUBLE
+      minValue:  0.0001
+      maxValue:  0.01
+      scaleType: UNIT_LINEAR_SCALE

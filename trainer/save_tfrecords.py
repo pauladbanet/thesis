@@ -1,17 +1,21 @@
 from timeit import default_timer as timer
+import librosa
+import tensorflow as tf
+import pickle5 as pickle
 
 import warnings
 warnings.filterwarnings("ignore")
-
 
 # sountracks1000 = pickle.load(open('/dataset/sountracks1000.pkl', 'rb'))
 # sountracks10 = sountracks1000.head(10)
 # sountracks10['mfcc'] = 0
 # sountracks1000['mfcc'] = 0
 
-# sountracks9000 = pickle.load(open('/dataset/sountracks9000.pkl', 'rb'))
-# sountracks9000 = sountracks9000.dropna()
-# sountracks9000['mfcc'] = 0
+sountracks9000 = pickle.load(open('/home/pdbanet/Vionlabs/datasets/sountracks9000.pkl', 'rb'))
+sountracks9000 = sountracks9000.dropna()
+sountracks9000['mfcc'] = 0
+
+# sountracks9000.to_pickle('/home/pdbanet/Vionlabs/datasets/sountracks9000.pkl')
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -42,7 +46,7 @@ def write_tfrecords(dataframe, filename):
         for item in dataframe.iterrows():
             print('song ID ' + str(item[1].name))
 
-            audio_path = '/dataset/soundtracks9000/' + str(item[1].id) + '.mp3'
+            audio_path = '/home/pdbanet/Vionlabs/datasets/soundtracks9000/' + str(item[1].id) + '.mp3'
             x , sr = librosa.load(audio_path)
             mfcc = librosa.feature.mfcc(x, sr=sr, n_mfcc=13, hop_length=1024)
             #[13, 323]
@@ -57,20 +61,17 @@ def save_songs(sountracks):
 # Creates tfrecords files with 200 songs in each one
 
     batch_size = 200
-    start_index = 15
+    start_index = 16
     dataframes = [sountracks[i:i+batch_size] for i in range(0,sountracks.shape[0],batch_size)]
 
     for index in range(len(dataframes)):
         
-        filename = '/dataset/mfccs200_'+ str(index) +'.tfrecords'
-        if index == start_index:
+        filename = '/home/pdbanet/Vionlabs/datasets/mfccs200_'+ str(index) +'.tfrecords'
+        if index >= start_index:
             write_tfrecords(dataframes[index], filename)
             print('Batch index', str(index))
 
 # save_songs(sountracks9000)        
-
-
-# sountracks1000.to_pickle(os.path.join(dir, 'mfccs/sountracks1000.pkl'))
 
 # for index in range(len(list_df)):
 #   print('index', str(index))

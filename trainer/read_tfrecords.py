@@ -1,9 +1,8 @@
-from trainer import save_tfrecords
+
 import tensorflow as tf
 
 SLICE_LENGTH = 323
 REMOVE_OFFSET_MFCC = False
-
 
 def read_tfrecord(serialized_example):
     features = {
