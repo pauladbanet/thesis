@@ -1,8 +1,6 @@
 
 import tensorflow as tf
-
-SLICE_LENGTH = 323
-REMOVE_OFFSET_MFCC = False
+from trainer import model_cnn
 
 def read_tfrecord(serialized_example):
     features = {
@@ -22,13 +20,13 @@ def read_tfrecord(serialized_example):
     new_mfcc = tf.reshape(mfcc, [13, int(len(mfcc)/13)]) 
     
     # Takes a random slice of mfcc 
-    max_offset = int(len(mfcc)/13) - SLICE_LENGTH
+    max_offset = int(len(mfcc)/13) - model_cnn.SLICE_LENGTH
     random_offset = tf.random.uniform((), minval=0, maxval=max_offset, dtype=tf.dtypes.int32)
 
-    if REMOVE_OFFSET_MFCC:
-        piece = tf.slice(new_mfcc, [1, random_offset], [-1, SLICE_LENGTH])
+    if model_cnn.REMOVE_OFFSET_MFCC:
+        piece = tf.slice(new_mfcc, [1, random_offset], [-1, model_cnn.SLICE_LENGTH])
     else:
-        piece = tf.slice(new_mfcc, [0, random_offset], [-1, SLICE_LENGTH])
+        piece = tf.slice(new_mfcc, [0, random_offset], [-1, model_cnn.SLICE_LENGTH])
 
     piece = tf.transpose(piece)
     piece = tf.expand_dims(piece, axis=2)  # Remove it for LSTM

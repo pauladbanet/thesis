@@ -2,12 +2,41 @@ trainingInput:
   hyperparameters:
     goal: MINIMIZE
     hyperparameterMetricTag: "loss"
-    maxTrials: 10
+    maxTrials: 2
     maxParallelTrials: 0
     enableTrialEarlyStopping: TRUE 
     params:
-    - parameterName: alpha
+
+    - parameterName: lr
       type: DOUBLE
       minValue:  0.0001
       maxValue:  0.01
       scaleType: UNIT_LINEAR_SCALE
+    
+    - parameterName: epochs
+      type: INTEGER
+      minValue:  10
+      maxValue:  20
+      scaleType: UNIT_LINEAR_SCALE
+
+    - parameterName: n_dense
+      type: DISCRETE
+      discreteValues: [2, 3, 4]
+
+    - parameterName: neuron1
+      type: DISCRETE
+      discreteValues: [64, 128, 256, 512]
+
+    - parameterName: neuron2
+      type: DISCRETE
+      discreteValues: [64, 128, 256, 512]
+
+    - parameterName: neuron3
+      type: DISCRETE
+      discreteValues: [64, 128, 256, 512]
+
+    - parameterName: neuron4
+      type: DISCRETE
+      discreteValues: [64, 128, 256, 512]
+
+
