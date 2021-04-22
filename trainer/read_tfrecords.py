@@ -1,6 +1,8 @@
 
 import tensorflow as tf
 from trainer import model_cnn
+import os
+import json
 
 def read_tfrecord(serialized_example):
     features = {
@@ -20,18 +22,31 @@ def read_tfrecord(serialized_example):
     new_mfcc = tf.reshape(mfcc, [13, int(len(mfcc)/13)]) 
     
     # Takes a random slice of mfcc 
-    max_offset = int(len(mfcc)/13) - model_cnn.SLICE_LENGTH
+    max_offset = int(len(mfcc)/13) - model_cnn.data['slice_length']
     random_offset = tf.random.uniform((), minval=0, maxval=max_offset, dtype=tf.dtypes.int32)
 
-    if model_cnn.REMOVE_OFFSET_MFCC:
-        piece = tf.slice(new_mfcc, [1, random_offset], [-1, model_cnn.SLICE_LENGTH])
+    if model_cnn.data['remove_offset']:
+        piece = tf.slice(new_mfcc, [1, random_offset], [-1, model_cnn.data['slice_length']])
     else:
-        piece = tf.slice(new_mfcc, [0, random_offset], [-1, model_cnn.SLICE_LENGTH])
+        piece = tf.slice(new_mfcc, [0, random_offset], [-1, model_cnn.data['slice_length']])
 
     piece = tf.transpose(piece)
-    piece = tf.expand_dims(piece, axis=2)  # Remove it for LSTM
 
-    return piece, val
+    if model_cnn.data['lstm']==False:
+        piece = tf.expand_dims(piece, axis=2)  # Remove it for LSTM
+
+    # # Quitar esto y ultimos dos params 
+    # piece = new_mfcc
+    # len_mfcc = len(mfcc)
+
+    if model_cnn.data['valence']:
+        return piece, val
+    elif model_cnn.data['arousal']:
+        return piece, aro
+    elif model_cnn.data['dominance']:
+        return piece, dom
+    else:
+        return piece, val
 
 
 def load_dataset(file_paths):

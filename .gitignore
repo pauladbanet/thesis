@@ -1,3 +1,4 @@
-/logs
 shell.sh
 /weights
+/trainer/logs
+/logs

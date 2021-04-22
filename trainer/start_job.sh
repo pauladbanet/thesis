@@ -1,13 +1,11 @@
 #!/bin/bash
+# "job_4_batchafter_nodrop_lessdata_GPU_$(date +%m%d_%H%M)"
 
 MODULE_NAME="trainer.json_main"
 PACKAGE_NAME="../trainer"
-JOB="testtensorboard_$(date +%m%d_%H%M)"
+JOB="lstm_2_$(date +%m%d_%H%M)"
 BUCKET="gs://job_results"
-SCALE_TIER='BASIC'
 REGION="us-central1"
-SLICE_LENGTH=323
-REMOVE_OFFSET_MFCC=False
 
 gcloud ai-platform jobs submit training $JOB \
 --config=hyper_config.yaml \
@@ -18,7 +16,6 @@ gcloud ai-platform jobs submit training $JOB \
 --staging-bucket $BUCKET \
 --runtime-version 2.4 \
 --python-version 3.7 \
---scale-tier $SCALE_TIER \
 -- \
 --tensorboard_path=$BUCKET/$JOB 
 
@@ -27,7 +24,36 @@ gcloud ai-platform jobs submit training $JOB \
 # --module-name=$MODULE_NAME \
 # --package-path=$PACKAGE_NAME \
 # --configuration=hyper_config.yaml 
-# --job-dir $BUCKET/$JOB \
 # -- \
 # --tensorboard_path=$BUCKET/$JOB \
 
+
+# MODEL_NAME="cnn_1"
+
+# # Create the model
+# gcloud ai-platform models create $MODEL_NAME \
+#   --regions $REGION
+
+# JOB_DIR='gs://job_results/cnn_5_0421_1511'
+# MODEL_VERSION=$MODEL_NAME + "v1"
+# SAVED_MODEL_PATH=$(gsutil ls $JOB_DIR | tail -n 1)
+
+# # Create model version based on that SavedModel directory
+# gcloud ai-platform versions create $MODEL_VERSION \
+#   --model $MODEL_NAME \
+#   --runtime-version 2.4 \
+#   --python-version 3.7 \
+#   --origin $SAVED_MODEL_PATH
+
+
+# PREDICTION_NAME='prediction'
+# INPUT_PATHS=gs://mfccs/mfccs200_8.tfrecords, gs://mfccs/mfccs200_9.tfrecords
+# OUTPUT_PATH=$JOB_DIR + '/predictions'
+
+# gcloud ai-platform jobs submit prediction $PREDICTION_NAME \
+# --model $MODEL_NAME \
+# --input-paths $INPUT_PATHS \
+# --output-path $OUTPUT_PATH \
+# --region $REGION \
+# --data-format 'tf-record' \
+# --batch-size 32
