@@ -15,15 +15,16 @@ from tensorflow.keras.utils import to_categorical
 #   data = json.load(f)
 
 data = {   
-    "slice_length": 323, 
-    "remove_offset": False,
-    "valence": True,
+    "slice_length": 646, 
+    "remove_offset": True,
+    "valence": False,
     "arousal": False,
-    "dominance": False,
-    "lstm": True, 
+    "dominance": True,
+    "lstm": False, 
     "batch_size": 32, 
     "epochs": 1000,
-    "name": 'test'
+    "vgg": False,
+    "slice_vgg": 15
 }
 
 
@@ -58,7 +59,10 @@ def cnn(opt, input_shape):
   x = Dense(128, activation = 'relu', kernel_initializer='random_normal')(x)
   x = Dense(64, activation = 'relu', kernel_initializer='random_normal')(x)
 
-  x = Dense(1, activation = 'linear')(x)
+  if data['valence'] | data['arousal'] | data['dominance']:
+    x = Dense(1, activation = 'linear')(x)
+  else:
+    x = Dense(3, activation = 'linear')(x)
 
   x = Model(inputs=input, outputs=x)
   x.compile(loss='mean_squared_error', optimizer=opt, metrics=['mae'])
@@ -69,11 +73,15 @@ def cnn(opt, input_shape):
 
 def lstm(opt, input_shape):
   input = Input(shape=input_shape)
-  x = LSTM(100, return_sequences=False)(input)
+  x = LSTM(500, return_sequences=False)(input)
+  x = Dense(256, activation = 'relu')(x)
   x = Dense(128, activation = 'relu')(x)
   x = Dense(64, activation = 'relu')(x)
 
-  x = Dense(1, activation = 'linear')(x)
+  if data['valence'] | data['arousal'] | data['dominance']:
+    x = Dense(1, activation = 'linear')(x)
+  else:
+    x = Dense(3, activation = 'linear')(x)
 
   x = Model(inputs=input, outputs=x)
   x.compile(loss='mean_squared_error', optimizer=opt, metrics=['mae'])
@@ -111,10 +119,13 @@ def start_training(path_train, path_val, args):
   #                                                 mode='min')
 
   early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_loss",
-                                                    patience=400,
+                                                    patience=300,
                                                     restore_best_weights=True)
 
-  callbacks=[tensorboard_callback, callback_train, callback_val, early_stopping]
+  if data['valence'] | data['arousal'] | data['dominance']:
+    callbacks=[tensorboard_callback, callback_train, callback_val, early_stopping]
+  else:
+    callbacks=[tensorboard_callback, early_stopping]
 
   hist = model.fit(train_dataset,
                     validation_data=val_dataset,

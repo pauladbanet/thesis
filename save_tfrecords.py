@@ -72,13 +72,3 @@ def save_songs(sountracks):
             print('Batch index', str(index))
 
 # save_songs(sountracks9000)        
-
-# for index in range(len(list_df)):
-#   print('index', str(index))
-#   if index >= start_index:
-
-# file_name = "sountracks1000_frames_30s.pkl"
-# open_file = open(file_name, "wb")
-# pickle.dump(df_final, open_file)
-# open_file.close()
-# print('ja')

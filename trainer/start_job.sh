@@ -3,7 +3,7 @@
 
 MODULE_NAME="trainer.json_main"
 PACKAGE_NAME="../trainer"
-JOB="lstm_2_$(date +%m%d_%H%M)"
+JOB="cnn_dom_646true_$(date +%m%d_%H%M)"
 BUCKET="gs://job_results"
 REGION="us-central1"
 
@@ -28,14 +28,14 @@ gcloud ai-platform jobs submit training $JOB \
 # --tensorboard_path=$BUCKET/$JOB \
 
 
-# MODEL_NAME="cnn_1"
+# MODEL_NAME="model_test_predict1"
 
 # # Create the model
 # gcloud ai-platform models create $MODEL_NAME \
 #   --regions $REGION
 
-# JOB_DIR='gs://job_results/cnn_5_0421_1511'
-# MODEL_VERSION=$MODEL_NAME + "v1"
+# JOB_DIR='gs://job_results/cnn_3_0421_1510'
+# MODEL_VERSION="${MODEL_NAME}_v1"
 # SAVED_MODEL_PATH=$(gsutil ls $JOB_DIR | tail -n 1)
 
 # # Create model version based on that SavedModel directory
@@ -48,7 +48,7 @@ gcloud ai-platform jobs submit training $JOB \
 
 # PREDICTION_NAME='prediction'
 # INPUT_PATHS=gs://mfccs/mfccs200_8.tfrecords, gs://mfccs/mfccs200_9.tfrecords
-# OUTPUT_PATH=$JOB_DIR + '/predictions'
+# OUTPUT_PATH="${JOB_DIR}/predictions"
 
 # gcloud ai-platform jobs submit prediction $PREDICTION_NAME \
 # --model $MODEL_NAME \
