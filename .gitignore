@@ -2,3 +2,4 @@ shell.sh
 /weights
 /trainer/logs
 /logs
+.ipynb_checkpoints
