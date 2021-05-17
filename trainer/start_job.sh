@@ -1,31 +1,30 @@
 #!/bin/bash
-# "job_4_batchafter_nodrop_lessdata_GPU_$(date +%m%d_%H%M)"
 
 MODULE_NAME="trainer.json_main"
 PACKAGE_NAME="../trainer"
-JOB="cnn_dom_646true_$(date +%m%d_%H%M)"
+JOB="lstm_vgg_15_valence"
 BUCKET="gs://job_results"
 REGION="us-central1"
 
-gcloud ai-platform jobs submit training $JOB \
---config=hyper_config.yaml \
---job-dir $BUCKET/$JOB \
---module-name $MODULE_NAME \
---package-path $PACKAGE_NAME \
---region $REGION \
---staging-bucket $BUCKET \
---runtime-version 2.4 \
---python-version 3.7 \
--- \
---tensorboard_path=$BUCKET/$JOB 
-
-
-# gcloud ai-platform local train  \
-# --module-name=$MODULE_NAME \
-# --package-path=$PACKAGE_NAME \
-# --configuration=hyper_config.yaml 
+# gcloud ai-platform jobs submit training $JOB \
+# --config=hyper_config.yaml \
+# --job-dir $BUCKET/$JOB \
+# --module-name $MODULE_NAME \
+# --package-path $PACKAGE_NAME \
+# --region $REGION \
+# --staging-bucket $BUCKET \
+# --runtime-version 2.4 \
+# --python-version 3.7 \
 # -- \
-# --tensorboard_path=$BUCKET/$JOB \
+# --tensorboard_path=$BUCKET/$JOB 
+
+
+gcloud ai-platform local train  \
+--module-name=$MODULE_NAME \
+--package-path=$PACKAGE_NAME \
+--configuration=hyper_config.yaml 
+-- \
+--tensorboard_path=$BUCKET/$JOB \
 
 
 # MODEL_NAME="model_test_predict1"

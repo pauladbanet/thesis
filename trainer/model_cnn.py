@@ -1,7 +1,5 @@
-# from read_tfrecords import *
-# from alden  import *
-from trainer import read_tfrecords
-from trainer  import alden
+from trainer.read_tfrecords import *
+from trainer.alden  import *
 from tensorflow.keras import Input
 import tensorflow as tf
 import os
@@ -11,17 +9,18 @@ from tensorflow.keras.layers import Dense, LSTM,Conv2D,Conv1D,MaxPooling2D, MaxP
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 
-# with tf.io.gfile.GFile('gs://job_results/params.json') as f:
-#   data = json.load(f)
-
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 # export PYTHONPATH=$(pwd)
 
-def get_dataset(file_paths, batch_size):
-  dataset = read_tfrecords.load_dataset(file_paths)
+def get_dataset(file_paths, batch_size, test):
+  if data['vgg']:
+    dataset = load_dataset_vgg(file_paths)
+  else:
+    dataset = load_dataset(file_paths)  
+  if test == False:  
+    dataset = dataset.shuffle(buffer_size=500)  
   dataset = dataset.prefetch(buffer_size=AUTOTUNE)
-  dataset = dataset.shuffle(buffer_size=500)  
-  dataset = dataset.batch(32, drop_remainder=True)
+  dataset = dataset.batch(batch_size, drop_remainder=True)
   return dataset
 
 
@@ -68,24 +67,28 @@ def lstm(opt, input_shape):
 
 def start_training(path_train, path_val, args):
 
-  train_dataset = get_dataset(path_train, read_tfrecords.data['batch_size']) 
-  val_dataset = get_dataset(path_val, read_tfrecords.data['batch_size'])            
+  train_dataset = get_dataset(path_train, data['batch_size'], test=False) 
+  val_dataset = get_dataset(path_val, data['batch_size'], test=False)            
 
   for song in train_dataset.take(1):
       input_shape = song[0].shape[1:]
 
   opt = tf.keras.optimizers.Adam(learning_rate=0.001)
 
-  if read_tfrecords.data['lstm']:
+  if data['lstm']:
     model = lstm(opt, input_shape)
   else:
     model = cnn(opt, input_shape)
 
+  # # Plot network graph
+  # img_file = '/dataset/images/lstm.png'
+  # tf.keras.utils.plot_model(model, to_file=img_file, show_shapes=True, show_layer_names=True)
+
   checkpoint_path = os.path.join(args.tensorboard_path, 'checkpoint.ckpt')
   tensorboard_path = os.path.join(args.tensorboard_path, 'logs')
 
-  callback_train = alden.PredictionPlot(tensorboard_path, 'train', train_dataset)
-  callback_val = alden.PredictionPlot(tensorboard_path, 'val', val_dataset)
+  callback_train = PredictionPlot(tensorboard_path, 'train', train_dataset)
+  callback_val = PredictionPlot(tensorboard_path, 'val', val_dataset)
   tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=tensorboard_path, histogram_freq=1)
 
   early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
@@ -95,6 +98,6 @@ def start_training(path_train, path_val, args):
 
   hist = model.fit(train_dataset,
                     validation_data=val_dataset,
-                    epochs=read_tfrecords.data['epochs'], 
+                    epochs=data['epochs'], 
                     callbacks=callbacks)
   return model
