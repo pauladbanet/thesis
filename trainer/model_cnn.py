@@ -53,7 +53,7 @@ def cnn(opt, input_shape):
 
 def lstm(opt, input_shape):
   input = Input(shape=input_shape)
-  x = LSTM(1000, return_sequences=False)(input)
+  x = LSTM(512, return_sequences=False)(input)
   x = Dense(128, activation = 'relu', kernel_initializer='random_normal')(x)
   x = Dense(128, activation = 'relu', kernel_initializer='random_normal')(x)
   x = Dense(64, activation = 'relu', kernel_initializer='random_normal')(x)

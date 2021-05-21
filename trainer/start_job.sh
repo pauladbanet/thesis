@@ -2,29 +2,29 @@
 
 MODULE_NAME="trainer.json_main"
 PACKAGE_NAME="../trainer"
-JOB="lstm_vgg_15_valence"
+JOB="mfcc_lstm_val_rem_646"
 BUCKET="gs://job_results"
 REGION="us-central1"
 
-# gcloud ai-platform jobs submit training $JOB \
-# --config=hyper_config.yaml \
-# --job-dir $BUCKET/$JOB \
-# --module-name $MODULE_NAME \
-# --package-path $PACKAGE_NAME \
-# --region $REGION \
-# --staging-bucket $BUCKET \
-# --runtime-version 2.4 \
-# --python-version 3.7 \
-# -- \
-# --tensorboard_path=$BUCKET/$JOB 
-
-
-gcloud ai-platform local train  \
---module-name=$MODULE_NAME \
---package-path=$PACKAGE_NAME \
---configuration=hyper_config.yaml 
+gcloud ai-platform jobs submit training $JOB \
+--config=hyper_config.yaml \
+--job-dir $BUCKET/$JOB \
+--module-name $MODULE_NAME \
+--package-path $PACKAGE_NAME \
+--region $REGION \
+--staging-bucket $BUCKET \
+--runtime-version 2.4 \
+--python-version 3.7 \
 -- \
---tensorboard_path=$BUCKET/$JOB \
+--tensorboard_path=$BUCKET/$JOB 
+
+
+# gcloud ai-platform local train  \
+# --module-name=$MODULE_NAME \
+# --package-path=$PACKAGE_NAME \
+# --configuration=hyper_config.yaml 
+# -- \
+# --tensorboard_path=$BUCKET/$JOB \
 
 
 # MODEL_NAME="model_test_predict1"

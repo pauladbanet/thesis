@@ -4,19 +4,19 @@ import json
                                                                                                                                                                                                                                                                       
 global data
 data = {   
-    'slice_length': 323, 
-    'remove_offset': False,
+    'slice_length': 646, 
+    'remove_offset': True,
     'valence': True,
     'arousal': False,
     'dominance': False,
     'lstm': True, 
-    'batch_size': 1, 
+    'batch_size': 32, 
     'epochs': 1000, 
-    'vgg': True,
+    'vgg': False,
     'slice_vgg': 15,
-    'name': 'lstm_vgg_15_valence', 
+    'name': 'mfcc_lstm_val_rem_646', 
     'test_second': 0, 
-    'test_vgg': True    # Testing loading a previous trained model or not.
+    'test_vgg': False    # Testing loading a previous trained model or not.
     }
 
 def read_tfrecord(serialized_example):
