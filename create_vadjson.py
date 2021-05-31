@@ -35,15 +35,19 @@ for v, a, d, id in zip(val, aro, dom, songs_id):
     d = map(float, d)
     d = np.array(list(d))
     vad_song = np.array([v, a, d]).transpose()
+
+    # Change VAD range from [0, 1] to [-1, 1]
+    vad_new = np.interp(vad_song, (0, 1), (-1, +1))
+
     times = np.arange(0, len(v)*150000, step=150000)
-    jotason = {"data": vad_song.tolist(),
+    jotason = {"data": vad_new.tolist(),
     "type":"vionfeatures.models.audio.VADAudio",
     "_version":"2.1.4",
     "timestamps": times.tolist(),
     "dataVersion":"1.0.4"}
     print(id)
 
-    with open('/dataset/test_32_new/' + str(id) + '_pred.json', 'w') as f:
+    with open('/dataset/test_32_new_range/' + str(id) + '_pred.json', 'w') as f:
         f.write(json.dumps(jotason))
 
 print('finito')

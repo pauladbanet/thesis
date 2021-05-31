@@ -2,9 +2,10 @@
 
 import json
 import pandas
+import pickle5 as pickle
 
 with open('sountracks9000_withapport_something.jsonl', 'w') as f:
-    x = pandas.read_pickle(open('/home/pdbanet/Vionlabs/datasets/sountracks9000_withapport_something.pkl', 'rb'))
+    x = pandas.read_pickle(open('/dataset/sountracks9000_withapport_something.pkl', 'rb'))
     for (name, data) in x.iterrows():
         json_item = {
             '_id': data.id,
@@ -18,3 +19,5 @@ with open('sountracks9000_withapport_something.jsonl', 'w') as f:
             },
         }
         f.write(json.dumps(json_item) + '\n')
+
+
